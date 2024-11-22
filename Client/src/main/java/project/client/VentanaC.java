@@ -8,8 +8,10 @@ package project.client;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import static java.awt.event.KeyEvent.VK_ENTER;
 import java.io.*;
 import javax.swing.*;
+import javax.swing.text.StyledDocument;
 
 /**
  * Clase que maneja la interfaz gráfica del cliente.
@@ -42,12 +44,13 @@ public class VentanaC extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         txtHistorial = new javax.swing.JTextArea();
-        txtMensaje = new javax.swing.JTextField();
         cmbContactos = new javax.swing.JComboBox();
         btnEnviar = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         ActiveUsers = new javax.swing.JScrollPane();
         btnEmoji = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        txtMensaje = new javax.swing.JTextPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -63,12 +66,6 @@ public class VentanaC extends javax.swing.JFrame {
         txtHistorial.setColumns(20);
         txtHistorial.setRows(5);
         jScrollPane1.setViewportView(txtHistorial);
-
-        txtMensaje.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtMensajeActionPerformed(evt);
-            }
-        });
 
         btnEnviar.setText("Enviar");
         btnEnviar.addActionListener(new java.awt.event.ActionListener() {
@@ -88,6 +85,13 @@ public class VentanaC extends javax.swing.JFrame {
             }
         });
 
+        txtMensaje.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtMensajeKeyPressed(evt);
+            }
+        });
+        jScrollPane3.setViewportView(txtMensaje);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -100,7 +104,7 @@ public class VentanaC extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnEmoji)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtMensaje)
+                        .addComponent(jScrollPane3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnEnviar))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -115,18 +119,21 @@ public class VentanaC extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(ActiveUsers)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 309, Short.MAX_VALUE)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(cmbContactos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel1))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txtMensaje, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnEnviar)
-                            .addComponent(btnEmoji))))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane3)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(btnEmoji, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(btnEnviar, javax.swing.GroupLayout.Alignment.TRAILING)))))
+                    .addComponent(ActiveUsers, javax.swing.GroupLayout.DEFAULT_SIZE, 373, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -167,61 +174,93 @@ public class VentanaC extends javax.swing.JFrame {
         cliente.confirmarDesconexion();
     }//GEN-LAST:event_formWindowClosing
 
-    private void txtMensajeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtMensajeActionPerformed
-
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtMensajeActionPerformed
-
     private void btnEmojiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEmojiActionPerformed
         JDialog emojiDialog = new JDialog(this, "Seleccionar Emoji", true);
-    emojiDialog.setSize(500, 500);
+        emojiDialog.setSize(500, 500);
 
-    // Crear un panel con cuadrícula para los emojis
-    JPanel emojiPanel = new JPanel(new GridLayout(0, 10, 5, 5)); // 10 columnas
-    emojiPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // Crear un panel con cuadrícula para los emojis
+        JPanel emojiPanel = new JPanel(new GridLayout(0, 10, 5, 5)); // 10 columnas
+        emojiPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-    // Ruta de la carpeta de emojis
-    String emojiFolderPath = "src/emojis/";
-    File emojiFolder = new File(emojiFolderPath);
+        // Ruta de la carpeta de emojis
+        String emojiFolderPath = "src/emojis/";
+        File emojiFolder = new File(emojiFolderPath);
 
-    if (emojiFolder.exists() && emojiFolder.isDirectory()) {
-        // Listar los archivos de emojis
-        File[] emojiFiles = emojiFolder.listFiles((dir, name) -> name.endsWith(".png"));
+        if (emojiFolder.exists() && emojiFolder.isDirectory()) {
+            // Listar los archivos de emojis
+            File[] emojiFiles = emojiFolder.listFiles((dir, name) -> name.endsWith(".png"));
 
-        if (emojiFiles != null) {
-            for (File emojiFile : emojiFiles) {
-                // Cargar el emoji como ImageIcon
-                ImageIcon icon = new ImageIcon(emojiFile.getAbsolutePath());
-                Image scaledImage = icon.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH);
-                icon = new ImageIcon(scaledImage);
+            if (emojiFiles != null) {
+                for (File emojiFile : emojiFiles) {
+                    // Cargar el emoji como ImageIcon
+                    ImageIcon icon = new ImageIcon(emojiFile.getAbsolutePath());
+                    Image scaledImage = icon.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+                    icon = new ImageIcon(scaledImage);
 
-                // Crear un botón con el emoji
-                JButton emojiButton = new JButton(icon);
-                emojiButton.setPreferredSize(new Dimension(40, 40));
-                emojiButton.addActionListener(e -> {
-                    txtMensaje.setText(txtMensaje.getText() + " [Emoji]"); // Añadir emoji al campo de texto
-                    emojiDialog.dispose(); // Cierra el diálogo
-                });
+                    // Crear un botón con el emoji
+                    JButton emojiButton = new JButton(icon);
+                    emojiButton.setPreferredSize(new Dimension(40, 40));
+                    emojiButton.addActionListener(e -> {
+                        txtMensaje.setText(txtMensaje.getText()); // Añadir emoji al campo de texto
+                        emojiDialog.dispose(); // Cierra el diálogo
+                        String emojiFilePath = emojiFile.getAbsolutePath(); // Ruta del archivo PNG
+                        agregarEmojiEnJTextPane(txtMensaje, emojiFilePath);
+                    });
 
-                emojiPanel.add(emojiButton);
+                    emojiPanel.add(emojiButton);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No se encontraron emojis en la carpeta.");
             }
         } else {
-            JOptionPane.showMessageDialog(this, "No se encontraron emojis en la carpeta.");
+            JOptionPane.showMessageDialog(this, "La carpeta de emojis no existe.");
         }
-    } else {
-        JOptionPane.showMessageDialog(this, "La carpeta de emojis no existe.");
-    }
 
-    // Añadir el panel al JScrollPane
-    JScrollPane scrollPane = new JScrollPane(emojiPanel);
+        // Añadir el panel al JScrollPane
+        JScrollPane scrollPane = new JScrollPane(emojiPanel);
 
-    // Añadir el JScrollPane al diálogo
-    emojiDialog.add(scrollPane);
+        // Añadir el JScrollPane al diálogo
+        emojiDialog.add(scrollPane);
 
-    // Mostrar el diálogo
-    emojiDialog.setLocationRelativeTo(this);
-    emojiDialog.setVisible(true);
+        // Mostrar el diálogo
+        emojiDialog.setLocationRelativeTo(this);
+        emojiDialog.setVisible(true);
     }//GEN-LAST:event_btnEmojiActionPerformed
+
+    private void txtMensajeKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtMensajeKeyPressed
+        if (evt.getKeyCode() == VK_ENTER)   {
+            evt.consume();
+            if (cmbContactos.getSelectedItem() == null) {
+                JOptionPane.showMessageDialog(this, "Debe escoger un destinatario válido, si no \n"
+                        + "hay uno, espere a que otro usuario se conecte\n"
+                        + "para poder chatear con él.");
+                return;
+            }
+            String cliente_receptor = cmbContactos.getSelectedItem().toString();
+            String mensaje = txtMensaje.getText();
+            cliente.enviarMensaje(cliente_receptor, mensaje);
+            //se agrega en el historial de la conversación lo que el cliente ha dicho
+            txtHistorial.append("## Yo -> " + cliente_receptor + " ## : \n" + mensaje + "\n");
+            txtMensaje.setText("");
+        }
+
+    }//GEN-LAST:event_txtMensajeKeyPressed
+    private void agregarEmojiEnJTextPane(JTextPane txtPane, String emojiFilePath) {
+        StyledDocument doc = txtPane.getStyledDocument();
+
+        try {
+            // Crear el icono del emoji
+            ImageIcon icon = new ImageIcon(emojiFilePath);
+            Image scaledImage = icon.getImage().getScaledInstance(14, 14, Image.SCALE_SMOOTH);
+            icon = new ImageIcon(scaledImage);
+
+            // Insertar el icono en el JTextPane
+            txtPane.setCaretPosition(doc.getLength()); // Colocar el cursor al final
+            txtPane.insertIcon(icon); // Insertar el emoji
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * @param args the command line arguments
@@ -249,8 +288,9 @@ public class VentanaC extends javax.swing.JFrame {
     private javax.swing.JComboBox cmbContactos;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextArea txtHistorial;
-    private javax.swing.JTextField txtMensaje;
+    private javax.swing.JTextPane txtMensaje;
     // End of variables declaration//GEN-END:variables
     /**
      * Constante que almacena el puerto por defecto para la aplicación.
