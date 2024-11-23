@@ -164,6 +164,7 @@ public class VentanaC extends javax.swing.JFrame {
      * @param evt
      */
     private void btnEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarActionPerformed
+        txtMensaje.requestFocusInWindow();
         if (cmbContactos.getSelectedItem() == null) {
             JOptionPane.showMessageDialog(this, "Debe escoger un destinatario válido, si no \n"
                     + "hay uno, espere a que otro usuario se conecte\n"
@@ -262,6 +263,7 @@ public class VentanaC extends javax.swing.JFrame {
                 emojiButton.addActionListener(e -> {
                     emojiDialog.dispose();
                     String emojiName = emojiMap.get(emojiFile.getName()).replace(".png", "");
+                    txtMensaje.requestFocusInWindow();
                     agregarEmojiEnJTextPane(txtMensaje, emojiName);
                 });
                 emojiPanel.add(emojiButton);
@@ -282,6 +284,7 @@ public class VentanaC extends javax.swing.JFrame {
                 txtMensaje.setText(txtMensaje.getText() + "\n");
             } else {
                 evt.consume();
+                if(isJTextPaneEmpty(txtMensaje)) return;
                 if (cmbContactos.getSelectedItem() == null) {
                     JOptionPane.showMessageDialog(this, "Debe escoger un destinatario válido, si no \n"
                             + "hay uno, espere a que otro usuario se conecte\n"
@@ -447,6 +450,11 @@ public class VentanaC extends javax.swing.JFrame {
 
     }
 
+    private boolean isJTextPaneEmpty(JTextPane textPane) {
+        return textPane.getDocument().getLength() == 0;
+
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -508,7 +516,6 @@ public class VentanaC extends javax.swing.JFrame {
      */
     void addMensaje(String emisor, String mensaje) {
         StyledDocument historial = txtHistorial.getStyledDocument();
-        System.out.println("Mensaje recibido: " + mensaje);
         try {
             // Añadir encabezado
             historial.insertString(historial.getLength(), "\n##### " + emisor + " ##### : \n", null);

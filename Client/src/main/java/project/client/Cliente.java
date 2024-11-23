@@ -11,11 +11,15 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
 import javax.swing.JOptionPane;
+import javax.swing.JTextPane;
+import javax.swing.text.StyledDocument;
 
 /**
  * Clase en la que se maneja la comunicación del lado del cliente.
+ *
  * @author Erick Navarro
  */
+
 public class Cliente extends Thread {
     /**
      * Socket utilizado para comunicarse con el servidor.
@@ -42,9 +46,12 @@ public class Cliente extends Thread {
      * que se arranca el hilo de comunicación del cliente.
      */
     private boolean escuchando;
+    
+    private JTextPane txtHistorial;
     /**
      * Variable que almacena la IP del host en el que se ejecuta el servidor.
      */
+    
     private final String host;
     /**
      * Varable que almacena el puerto por el cual el servidor escucha las conexiones
@@ -222,6 +229,47 @@ public class Cliente extends Thread {
             System.out.println("Error de lectura y escritura al enviar mensaje al servidor.");
         }
     }
+    
+    public void enviarMensaje(byte[] contenidoSerializado) {
+        try {
+            objectOutputStream.writeObject(contenidoSerializado);
+            objectOutputStream.flush(); 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Método para serializar el contenido del JTextPane
+    public byte[] serializarContenido(JTextPane txtPane) {
+        try {
+            StyledDocument doc = txtPane.getStyledDocument();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(doc);
+            oos.close();
+            return baos.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    public void deserializarContenido(JTextPane txtPane, byte[] contenidoSerializado) {
+        try {
+            ByteArrayInputStream bais = new ByteArrayInputStream(contenidoSerializado);
+            ObjectInputStream ois = new ObjectInputStream(bais);
+            StyledDocument doc = (StyledDocument) ois.readObject();
+            txtPane.setDocument(doc);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Método para recibir mensajes
+    public void recibirMensaje(byte[] contenidoSerializado) {
+        deserializarContenido(txtHistorial, contenidoSerializado);
+    }
+    
     /**
      * Método que retorna el identificador del cliente que es único dentro del chat.
      * @return 
