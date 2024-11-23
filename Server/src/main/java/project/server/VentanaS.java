@@ -26,7 +26,7 @@ public class VentanaS extends javax.swing.JFrame {
 
     private final String DEFAULT_PORT = "10101";
     private final Servidor servidor;
-
+    int Diego;
     /**
      * Creates new form Ventana
      */
