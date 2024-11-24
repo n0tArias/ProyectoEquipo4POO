@@ -15,6 +15,7 @@ import java.util.regex.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
+import javax.swing.DefaultListModel;
 
 /**
  * Clase que maneja la interfaz gráfica del cliente.
@@ -22,6 +23,9 @@ import javax.swing.text.*;
  * @author Erick Navarro
  */
 public class VentanaC extends javax.swing.JFrame {
+
+    private DefaultListModel<String> listModel; // Modelo para el JList
+    private JList<String> listContactos; // JList para mostrar contactos
 
     /**
      * Constructor de la ventana.
@@ -34,6 +38,15 @@ public class VentanaC extends javax.swing.JFrame {
         String puerto = ip_puerto_nombre[1];
         String nombre = ip_puerto_nombre[2];
         cliente = new Cliente(this, ip, Integer.valueOf(puerto), nombre);
+        // Inicializar el modelo y el JList
+        listModel = new DefaultListModel<>();
+        listContactos = new JList<>(listModel);
+        // Configurar el JList en un JScrollPane
+        JScrollPane scrollPane = new JScrollPane(listContactos);
+        scrollPane.setPreferredSize(new Dimension(200, 150)); // Ajusta el tamaño según sea necesario
+
+        // Agregar el JScrollPane al layout
+        getContentPane().add(scrollPane, BorderLayout.EAST); // Agregar al lado derecho de la ventana
     }
 
     /**
@@ -48,12 +61,13 @@ public class VentanaC extends javax.swing.JFrame {
         cmbContactos = new javax.swing.JComboBox();
         btnEnviar = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
-        ActiveUsers = new javax.swing.JScrollPane();
         btnEmoji = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         txtMensaje = new javax.swing.JTextPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         txtHistorial = new javax.swing.JTextPane();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jList1 = new javax.swing.JList<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -65,6 +79,13 @@ public class VentanaC extends javax.swing.JFrame {
             }
         });
 
+        cmbContactos.setBorder(null);
+        cmbContactos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbContactosActionPerformed(evt);
+            }
+        });
+
         btnEnviar.setText("Enviar");
         btnEnviar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -73,8 +94,6 @@ public class VentanaC extends javax.swing.JFrame {
         });
 
         jLabel1.setText("Destinatario:");
-
-        ActiveUsers.setBorder(javax.swing.BorderFactory.createTitledBorder("Usuarios activos"));
 
         btnEmoji.setText("😀");
         btnEmoji.addActionListener(new java.awt.event.ActionListener() {
@@ -113,45 +132,56 @@ public class VentanaC extends javax.swing.JFrame {
         txtHistorial.setEditable(false);
         jScrollPane2.setViewportView(txtHistorial);
 
+        jList1.setBorder(javax.swing.BorderFactory.createTitledBorder("Usuarios Activos"));
+        jList1.setModel(cmbContactos.getModel());
+        jScrollPane1.setViewportView(jList1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(ActiveUsers, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(14, 14, 14)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 291, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(20, 20, 20)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
+                        .addGap(0, 2, Short.MAX_VALUE)
                         .addComponent(btnEmoji)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane3)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 287, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnEnviar))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addComponent(jScrollPane2)
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 155, Short.MAX_VALUE)
-                        .addComponent(cmbContactos, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane2))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(cmbContactos, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 274, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(24, 24, 24)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(cmbContactos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel1))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cmbContactos, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(btnEmoji)
-                            .addComponent(btnEnviar)
-                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(ActiveUsers))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnEnviar, javax.swing.GroupLayout.Alignment.TRAILING)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btnEmoji)
+                                .addGap(0, 0, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
 
@@ -284,7 +314,9 @@ public class VentanaC extends javax.swing.JFrame {
                 txtMensaje.setText(txtMensaje.getText() + "\n");
             } else {
                 evt.consume();
-                if(isJTextPaneEmpty(txtMensaje)) return;
+                if (isJTextPaneEmpty(txtMensaje)) {
+                    return;
+                }
                 if (cmbContactos.getSelectedItem() == null) {
                     JOptionPane.showMessageDialog(this, "Debe escoger un destinatario válido, si no \n"
                             + "hay uno, espere a que otro usuario se conecte\n"
@@ -352,6 +384,10 @@ public class VentanaC extends javax.swing.JFrame {
     private void txtMensajePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_txtMensajePropertyChange
         // TODO add your handling code here:
     }//GEN-LAST:event_txtMensajePropertyChange
+
+    private void cmbContactosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbContactosActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cmbContactosActionPerformed
 
     private Map<String, String> buildEmojiMap(File[] prefixedFiles, File[] unprefixedFiles) {
         Map<String, String> emojiMap = new HashMap<>();
@@ -475,11 +511,12 @@ public class VentanaC extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JScrollPane ActiveUsers;
     private javax.swing.JButton btnEmoji;
     private javax.swing.JButton btnEnviar;
     private javax.swing.JComboBox cmbContactos;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JList<String> jList1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextPane txtHistorial;
@@ -506,6 +543,7 @@ public class VentanaC extends javax.swing.JFrame {
      */
     void addContacto(String contacto) {
         cmbContactos.addItem(contacto);
+        listModel.addElement(contacto);
     }
 
     /**
@@ -623,5 +661,7 @@ public class VentanaC extends javax.swing.JFrame {
                 return;
             }
         }
+        listModel.removeElement(identificador);
     }
+
 }
