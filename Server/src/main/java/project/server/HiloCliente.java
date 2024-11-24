@@ -72,7 +72,6 @@ public class HiloCliente extends Thread{
      * Método encargado de cerrar el socket de comunicación con el cliente.
      * Este método se utiliza para finalizar la conexión entre el servidor y el cliente,
      * liberando los recursos asociados al socket.
-     * 
      * Si el socket no se puede cerrar debido a un error de entrada/salida, se imprime
      * un mensaje de error en la consola.
      */
@@ -194,7 +193,6 @@ public class HiloCliente extends Thread{
      * Método encargado de procesar las acciones solicitadas por el cliente.
      * Dependiendo del contenido de la lista recibida, este método realiza diferentes
      * operaciones como gestionar conexiones, desconexiones o mensajes.
-     * 
      * @param lista Lista de cadenas que contiene el tipo de solicitud y sus parámetros.
      */
     public void ejecutar(LinkedList<String> lista) {
@@ -226,7 +224,6 @@ public class HiloCliente extends Thread{
     /**
      * Método para enviar un mensaje al cliente a través del socket.
      * Este método utiliza el flujo de salida del cliente para transmitir una lista de cadenas.
-     * 
      * @param lista Lista de cadenas que contiene los datos del mensaje.
      */
     private void enviarMensaje(LinkedList<String> lista) {
@@ -243,7 +240,6 @@ public class HiloCliente extends Thread{
      * Método para notificar a todos los clientes conectados sobre la conexión de un nuevo cliente.
      * Este método también agrega el nuevo cliente al servidor y actualiza la lista de contactos
      * de todos los clientes existentes.
-     * 
      * @param identificador Identificador único del cliente que se ha conectado.
      */
     private void confirmarConexion(String identificador) {
@@ -273,7 +269,6 @@ public class HiloCliente extends Thread{
     
     /**
      * Método para obtener el identificador único del cliente en el chat.
-     * 
      * @return Identificador único del cliente.
      */
     public String getIdentificador() {
