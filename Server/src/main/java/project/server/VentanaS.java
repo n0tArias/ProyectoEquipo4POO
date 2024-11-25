@@ -4,9 +4,6 @@
  * Noviembre - 2015
  */
 
-//Esto es un comentario de prueba
-//Esto es un comentario de gitHub att: EmilioAmbriz
-
 // Paquete que organiza las clases relacionadas con el servidor
 package project.server;
 
@@ -78,8 +75,10 @@ public class VentanaS extends javax.swing.JFrame {
             }
         });
 
+          // Etiqueta para indicar al usuario qué acción realizar
         jLabel1.setText("Elegir usuario a desconectar:");
 
+          // Configuración del diseño gráfico (layout)
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -113,6 +112,12 @@ public class VentanaS extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    
+    /**
+     * Método que maneja el evento del botón para desconectar usuarios.
+     * Verifica si se ha seleccionado un usuario válido antes de proceder.
+     */
+
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         if (cmbActiveUsers.getSelectedItem() == null) {
             JOptionPane.showMessageDialog(this, "Debe escoger un destinatario válido, si no \n"
@@ -120,6 +125,8 @@ public class VentanaS extends javax.swing.JFrame {
                     + "para poder chatear con él.");
             return;
         }
+
+         // Llama al método para eliminar el cliente del servidor y lo elimina del combo
         servidor.eliminarCliente((String)cmbActiveUsers.getSelectedItem()); // Llama al método para desconectar al cliente
         cmbActiveUsers.removeItem((String)cmbActiveUsers.getSelectedItem());
 
@@ -169,9 +176,8 @@ public class VentanaS extends javax.swing.JFrame {
     private javax.swing.JTextArea txtClientes;
     // End of variables declaration//GEN-END:variables
     /**
-     * Método que agrega una línea de texto al log.
-     *
-     * @param texto
+     * Agrega un usuario al combo de usuarios activos.
+     * @param user Nombre del usuario a agregar
      */
     void addActiveUsers(String user) {
         cmbActiveUsers.addItem(user);
@@ -182,10 +188,9 @@ public class VentanaS extends javax.swing.JFrame {
     }
 
     /**
-     * Método que abre una ventana para que el usuario ingrese el puerto que
-     * desea utilizar para que el servidor escuche.
-     *
-     * @return
+     * Muestra un cuadro de diálogo para que el usuario ingrese el puerto del servidor.
+     * Si el usuario cancela, la aplicación se cierra.
+     * @return El puerto ingresado por el usuario
      */
     private String getPuerto() {
         String p = DEFAULT_PORT;
