@@ -7,6 +7,7 @@
 //Esto es un comentario de prueba
 //Esto es un comentario de gitHub att: EmilioAmbriz
 
+// Paquete que organiza las clases relacionadas con el servidor
 package project.server;
 
 import java.awt.GridLayout;
@@ -25,16 +26,19 @@ import javax.swing.JTextField;
  */
 public class VentanaS extends javax.swing.JFrame {
 
+// Puerto predeterminado para que el servidor escuche
     private final String DEFAULT_PORT = "10101";
+
+    // Instancia de la clase Servidor, que maneja las conexiones
     private final Servidor servidor;
     /**
      * Creates new form Ventana
      */
     public VentanaS() {
-        initComponents();
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        String puerto = getPuerto();
-        servidor = new Servidor(puerto, this);
+        initComponents(); // Inicializa los componentes de la interfaz
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Configura la acción de cierre
+        String puerto = getPuerto(); // Obtiene el puerto desde un cuadro de diálogo
+        servidor = new Servidor(puerto, this); // Inicializa el servidor con el puerto proporcionado
     }
 
     /**
@@ -46,6 +50,7 @@ public class VentanaS extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        // Componentes de la interfaz gráfica
         jScrollPane1 = new javax.swing.JScrollPane();
         txtClientes = new javax.swing.JTextArea();
         cmbActiveUsers = new javax.swing.JComboBox<>();
@@ -55,15 +60,17 @@ public class VentanaS extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Servidor");
 
+         // Configuración del área de texto para mostrar el log del servidor
         jScrollPane1.setBorder(javax.swing.BorderFactory.createTitledBorder("Log del Servidor"));
 
-        txtClientes.setEditable(false);
+        txtClientes.setEditable(false);  // El log no es editable por el usuario
         txtClientes.setColumns(20);
         txtClientes.setRows(5);
         jScrollPane1.setViewportView(txtClientes);
 
         cmbActiveUsers.setSelectedItem(null);
-
+        
+        // Configuración del botón para desconectar usuarios
         jButton1.setText("Desconectar usuario");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
