@@ -34,7 +34,7 @@ public class Servidor extends Thread {
      * Ventana que gestiona la interfaz gráfica del servidor.
      * Sirve para mostrar los logs y el estado del servidor.
      */
-    private final VentanaS ventana;
+    public final VentanaS ventana;
 
     /**
      * Puerto en el que el servidor estará escuchando conexiones entrantes.

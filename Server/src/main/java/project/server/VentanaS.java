@@ -119,16 +119,14 @@ public class VentanaS extends javax.swing.JFrame {
      */
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        if (cmbActiveUsers.getSelectedItem() == null) {
-            JOptionPane.showMessageDialog(this, "Debe escoger un destinatario válido, si no \n"
-                    + "hay uno, espere a que otro usuario se conecte\n"
-                    + "para poder chatear con él.");
+        String selectedUser = (String) cmbActiveUsers.getSelectedItem();
+        if (selectedUser == null) {
+            JOptionPane.showMessageDialog(this, "Debe escoger un destinatario válido.");
             return;
         }
-
          // Llama al método para eliminar el cliente del servidor y lo elimina del combo
-        servidor.eliminarCliente((String)cmbActiveUsers.getSelectedItem()); // Llama al método para desconectar al cliente
-        cmbActiveUsers.removeItem((String)cmbActiveUsers.getSelectedItem());
+        servidor.eliminarCliente(selectedUser); // Elimina al cliente en el servidor
+        removeActiveUser(selectedUser);
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -183,6 +181,13 @@ public class VentanaS extends javax.swing.JFrame {
         cmbActiveUsers.addItem(user);
     }
 
+    /**
+     * Elimina a un usuario del combo de usuarios activos.
+     * @param user Nombre del usuario a agregar
+     */
+    public void removeActiveUser(String user) {
+        cmbActiveUsers.removeItem(user);
+    }
     void agregarLog(String texto) {
         txtClientes.append(texto);
     }

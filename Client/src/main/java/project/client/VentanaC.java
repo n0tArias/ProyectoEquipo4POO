@@ -7,18 +7,24 @@ package project.client;
 
 import java.awt.*;
 import static java.awt.event.KeyEvent.VK_ENTER;
+import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.*;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.DefaultListModel;
 
 /**
- * Esta línea declara una clase pública llamada VentanaC que hereda de la clase javax.swing.JFrame, que es la clase base para las ventanas en aplicaciones Swing.
+ * Esta línea declara una clase pública llamada VentanaC que hereda de la clase
+ * javax.swing.JFrame, que es la clase base para las ventanas en aplicaciones
+ * Swing.
  */
 public class VentanaC extends javax.swing.JFrame {
 
@@ -26,8 +32,12 @@ public class VentanaC extends javax.swing.JFrame {
     private JList<String> listContactos; // JList para mostrar contactos
 
     /**
-     *Este es el constructor de la clase VentanaC y se llama cuando se crea una instancia de la clase. Inicializa los componentes de la interfaz gráfica de usuario utilizando el método initComponents() (que generalmente es autogenerado por el editor de formularios de Swing).
-     *Configura el JList para mostrar contactos y define acciones para varios botones, como enviar mensajes y seleccionar emojis.
+     * Este es el constructor de la clase VentanaC y se llama cuando se crea una
+     * instancia de la clase. Inicializa los componentes de la interfaz gráfica
+     * de usuario utilizando el método initComponents() (que generalmente es
+     * autogenerado por el editor de formularios de Swing). Configura el JList
+     * para mostrar contactos y define acciones para varios botones, como enviar
+     * mensajes y seleccionar emojis.
      */
     public VentanaC() {
         initComponents();
@@ -267,10 +277,10 @@ public class VentanaC extends javax.swing.JFrame {
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         cliente.confirmarDesconexion();
     }//GEN-LAST:event_formWindowClosing
-/*
+    /*
 *Este método maneja el evento de clic en el botón “Emoji”.
 *Abre un cuadro de diálogo donde los usuarios pueden seleccionar emojis para insertarlos en el mensaje.
-*/
+     */
     private void btnEmojiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEmojiActionPerformed
         JDialog emojiDialog = new JDialog(this, "Seleccionar Emoji", true);
         emojiDialog.setSize(500, 500);
@@ -278,37 +288,43 @@ public class VentanaC extends javax.swing.JFrame {
         JPanel emojiPanel = new JPanel(new GridLayout(0, 10, 5, 5));
         emojiPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        String emojiFolderPath = "src/emojis/";
-        String textEmojiFolderPath = "src/EmojisName";
-        File emojiFolder = new File(emojiFolderPath);
-        File emojisNameFolder = new File(textEmojiFolderPath);
-        File[] emojisNameFiles = emojisNameFolder.exists() && emojisNameFolder.isDirectory()
-                ? emojisNameFolder.listFiles((dir, name) -> name.endsWith(".png")) : null;
-        File[] emojiFiles = emojiFolder.exists() && emojiFolder.isDirectory()
-                ? emojiFolder.listFiles((dir, name) -> name.endsWith(".png")) : null;
+        try {
+            // Cargar lista de archivos desde recursos
+            List<String> emojiFiles = getResourceFiles("/emojis/");
+            List<String> emojisNameFiles = getResourceFiles("/EmojisName/");
+            Map<String, String> emojiMap = buildEmojiMap(emojiFiles, emojisNameFiles);
+            for (String emojiFile : emojiFiles) {
+                if (emojiFile.endsWith(".png")) {
+                    // Cargar imagen como recurso
+                    InputStream emojiStream = getClass().getResourceAsStream("/emojis/" + emojiFile);
+                    if (emojiStream != null) {
+                        BufferedImage emojiImage = ImageIO.read(emojiStream);
+                        ImageIcon icon = new ImageIcon(emojiImage.getScaledInstance(32, 32, Image.SCALE_SMOOTH));
 
-        if (emojiFiles != null && emojisNameFiles != null) {
-            Map<String, String> emojiMap = buildEmojiMap(emojiFiles, emojisNameFiles); //se usan para gestionar la funcionalidad de emojis en el chat.
+                        // Crear botón con el emoji
+                        JButton emojiButton = new JButton(icon);
+                        emojiButton.setPreferredSize(new Dimension(40, 40));
+                        emojiButton.addActionListener(e -> {
+                            emojiDialog.dispose();
+                            String emojiName = emojiFile.replace(".png", "");
+                            txtMensaje.requestFocusInWindow();
+                            agregarEmojiEnJTextPane(txtMensaje, emojiName);
+                        });
+                        emojiPanel.add(emojiButton);
 
-            for (File emojiFile : emojiFiles) {
-                ImageIcon icon = new ImageIcon(new ImageIcon(emojiFile.getAbsolutePath()).getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH));
-                JButton emojiButton = new JButton(icon);
-                emojiButton.setPreferredSize(new Dimension(40, 40));
-                emojiButton.addActionListener(e -> {
-                    emojiDialog.dispose();
-                    String emojiName = emojiMap.get(emojiFile.getName()).replace(".png", "");
-                    txtMensaje.requestFocusInWindow();
-                    agregarEmojiEnJTextPane(txtMensaje, emojiName);
-                });
-                emojiPanel.add(emojiButton);
+                        // Agregar al mapa de nombres (si se necesita)
+                        emojiMap.put(emojiFile, emojiFile);
+                    }
+                }
             }
-        } else {
-            JOptionPane.showMessageDialog(this, "No se encontraron emojis en la carpeta.");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar los emojis desde recursos: " + e.getMessage());
         }
 
         emojiDialog.add(new JScrollPane(emojiPanel));
         emojiDialog.setLocationRelativeTo(this);
         emojiDialog.setVisible(true);
+
     }//GEN-LAST:event_btnEmojiActionPerformed
 
     private void txtMensajeKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtMensajeKeyPressed
@@ -393,20 +409,35 @@ public class VentanaC extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_cmbContactosActionPerformed
 
-    private Map<String, String> buildEmojiMap(File[] prefixedFiles, File[] unprefixedFiles) {
+    public Map<String, String> buildEmojiMap(List<String> prefixedFiles, List<String> unprefixedFiles) {
         Map<String, String> emojiMap = new HashMap<>();
-        for (File prefixedFile : prefixedFiles) {
-            String prefixedName = prefixedFile.getName();
-            String baseName = prefixedName.substring(prefixedName.indexOf('_') + 1, prefixedName.length() - 4);
-            for (File unprefixedFile : unprefixedFiles) {
-                String unprefixedName = unprefixedFile.getName();
-                if (unprefixedName.startsWith(baseName)) {
-                    emojiMap.put(prefixedFile.getName(), unprefixedName);
-                    break;
+        for (String prefixedFile : prefixedFiles) {
+            String baseName = prefixedFile.substring(prefixedFile.indexOf('_') + 1, prefixedFile.length() - 4);
+            for (String unprefixedFile : unprefixedFiles) {
+                if (unprefixedFile.startsWith(baseName)) {
+                    emojiMap.put(prefixedFile, unprefixedFile);
+                    break;  // No es necesario continuar buscando después de la primera coincidencia
                 }
             }
         }
         return emojiMap;
+    }
+
+    /**
+     *
+     * @param path
+     * @return
+     * @throws IOException
+     */
+    public List<String> getResourceFiles(String path) throws IOException {
+        List<String> filenames = new ArrayList<>();
+        try (InputStream in = getClass().getResourceAsStream(path); BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
+            String resource;
+            while ((resource = br.readLine()) != null) {
+                filenames.add(resource);
+            }
+        }
+        return filenames;
     }
 
     private void verificarYReemplazarEmoji(DocumentEvent e) {
@@ -422,16 +453,16 @@ public class VentanaC extends javax.swing.JFrame {
             while (matcher.find()) {
                 String emojiName = matcher.group(1);
 
-                // Verificar si el archivo del emoji existe
-                File emojiFile = new File("src/emojisName/" + emojiName + ".png");
-                if (!emojiFile.exists()) {
-                    System.out.println("Emoji no encontrado: " + emojiFile.getAbsolutePath());
+                // Verificar si el archivo del emoji existe como recurso
+                InputStream emojiStream = getClass().getResourceAsStream("/EmojisName/" + emojiName + ".png");
+                if (emojiStream == null) {
+                    System.out.println("Emoji no encontrado: " + emojiName);
                     continue;
                 }
 
                 // Crear y redimensionar el icono
-                ImageIcon icon = new ImageIcon(new ImageIcon(emojiFile.getAbsolutePath()).getImage()
-                        .getScaledInstance(20, 20, Image.SCALE_SMOOTH));
+                BufferedImage emojiImage = ImageIO.read(emojiStream);
+                ImageIcon icon = new ImageIcon(emojiImage.getScaledInstance(20, 20, Image.SCALE_SMOOTH));
                 SimpleAttributeSet attrSet = new SimpleAttributeSet();
                 StyleConstants.setIcon(attrSet, icon);
                 attrSet.addAttribute("emojiTag", ":" + emojiName + ":");
@@ -440,11 +471,11 @@ public class VentanaC extends javax.swing.JFrame {
                 int start = matcher.start();
                 int end = matcher.end();
 
-                // Diferir la modificación al documento
+                // Diferir la modificación al documento para evitar problemas de concurrencia
                 SwingUtilities.invokeLater(() -> {
                     try {
-                        doc.remove(start, end - start);
-                        doc.insertString(start, " ", attrSet);
+                        doc.remove(start, end - start); // Eliminar el texto del emoji original
+                        doc.insertString(start, " ", attrSet);  // Insertar el icono en lugar del emoji
                     } catch (BadLocationException ex) {
                         ex.printStackTrace();
                     }
@@ -457,18 +488,17 @@ public class VentanaC extends javax.swing.JFrame {
 
     private void agregarEmojiEnJTextPane(JTextPane textPane, String emojiName) {
         StyledDocument doc = textPane.getStyledDocument();
-        File emojiFile = new File("src/emojisName/" + emojiName + ".png");
+        // Cargar emoji desde recursos
+        InputStream emojiStream = getClass().getResourceAsStream("/EmojisName/" + emojiName + ".png");
 
-        if (!emojiFile.exists()) {
+        if (emojiStream == null) {
             return;
         }
 
-        // Cargar y redimensionar el emoji
-        ImageIcon icon = new ImageIcon(emojiFile.getAbsolutePath());
-        Image scaledImage = icon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH); // Ajusta el tamaño aquí
-        icon = new ImageIcon(scaledImage);
-
         try {
+            BufferedImage emojiImage = ImageIO.read(emojiStream);
+            ImageIcon icon = new ImageIcon(emojiImage.getScaledInstance(20, 20, Image.SCALE_SMOOTH)); // Ajusta el tamaño aquí
+
             // Configurar el atributo del icono
             SimpleAttributeSet attrSet = new SimpleAttributeSet();
             StyleConstants.setIcon(attrSet, icon);
@@ -476,18 +506,9 @@ public class VentanaC extends javax.swing.JFrame {
             doc.insertString(doc.getLength(), " ", attrSet); // Espacio con el icono
         } catch (BadLocationException e) {
             e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        Element element = doc.getCharacterElement(doc.getLength() - 1);
-        AttributeSet attributes = element.getAttributes();
-
-        Object emojiTag = attributes.getAttribute("emojiTag");
-
-        if (emojiTag != null) {
-            System.out.println("Atributo emojiTag encontrado: " + emojiTag);
-        } else {
-            System.out.println("No se encontró el atributo emojiTag.");
-        }
-
     }
 
     private boolean isJTextPaneEmpty(JTextPane textPane) {
@@ -576,12 +597,12 @@ public class VentanaC extends javax.swing.JFrame {
                     historial.insertString(historial.getLength(), textBefore, null);
                 }
 
-                // Verifica si existe el archivo del emoji
-                File emojiFile = new File("src/emojisName/" + emojiName + ".png");
-                if (emojiFile.exists()) {
+                // Verifica si existe el archivo del emoji como recurso
+                InputStream emojiStream = getClass().getResourceAsStream("/EmojisName/" + emojiName + ".png");
+                if (emojiStream != null) {
                     // Crea y redimensiona el ícono
-                    ImageIcon icon = new ImageIcon(new ImageIcon(emojiFile.getAbsolutePath()).getImage()
-                            .getScaledInstance(20, 20, Image.SCALE_SMOOTH));
+                    BufferedImage emojiImage = ImageIO.read(emojiStream);
+                    ImageIcon icon = new ImageIcon(emojiImage.getScaledInstance(20, 20, Image.SCALE_SMOOTH));
                     SimpleAttributeSet attrSet = new SimpleAttributeSet();
                     StyleConstants.setIcon(attrSet, icon);
                     attrSet.addAttribute("emojiTag", ":" + emojiName + ":");
@@ -603,6 +624,8 @@ public class VentanaC extends javax.swing.JFrame {
 
         } catch (BadLocationException ex) {
             Logger.getLogger(VentanaC.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 

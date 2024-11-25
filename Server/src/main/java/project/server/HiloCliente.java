@@ -87,67 +87,7 @@ public class HiloCliente extends Thread{
             System.err.println("Error al cerrar el socket de comunicación con el cliente.");
         }
     }
-
-    /**
-     * Sobreescritura del método de Thread, es acá en donde se monta el ciclo infinito.
-     */        
-    public void run() {
-        try{
-            escuchar();
-        } catch (Exception ex) {
-            System.err.println("Error al llamar al método readLine del hilo del cliente.");
-        }
-        desconnectar();
-    }
-        
-    /**
-     * Método que constantemente esta escuchando todo lo que es enviado por 
-     * el cliente que se comunica con él.
-     */        
-    public void escuchar(){        
-        escuchando=true;
-        while(escuchando){
-            try {
-                Object aux=objectInputStream.readObject();
-                if(aux instanceof LinkedList){
-                    ejecutar((LinkedList<String>)aux);
-                }
-            } catch (Exception e) {                    
-                System.err.println("Error al leer lo enviado por el cliente.");
-            }
-        }
-    }
-    /**
-     * Método que realiza determinadas acciones dependiendo de lo que el socket haya recibido y lo que
-     * este le envie el método, en él se manejan una serie de códigos.
-     * @param lista
-     */        
-    public void ejecutar(LinkedList<String> lista){
-        // 0 - El primer elemento de la lista es siempre el tipo
-        String tipo=lista.get(0);
-        switch (tipo) {
-            case "SOLICITUD_CONEXION":
-                // 1 - Identificador propio del nuevo usuario
-                confirmarConexion(lista.get(1));
-                break;
-            case "SOLICITUD_DESCONEXION":
-                // 1 - Identificador propio del nuevo usuario
-                confirmarDesConexion();
-                break;                
-            case "MENSAJE":
-                // 1      - Cliente emisor
-                // 2      - Cliente receptor
-                // 3      - Mensaje
-                String destinatario=lista.get(2);
-                server.clientes
-                        .stream()
-                        .filter(h -> (destinatario.equals(h.getIdentificador())))
-                        .forEach((h) -> h.enviarMensaje(lista));
-                break;
-            default:
-                break;
-        }
-    }
+ 
        /**
      * Sobreescritura del método `run` del hilo.
      * Este método ejecuta el ciclo principal del hilo del cliente, donde primero
@@ -226,7 +166,7 @@ public class HiloCliente extends Thread{
      * Este método utiliza el flujo de salida del cliente para transmitir una lista de cadenas.
      * @param lista Lista de cadenas que contiene los datos del mensaje.
      */
-    private void enviarMensaje(LinkedList<String> lista) {
+    public void enviarMensaje(LinkedList<String> lista) {
         try {
             // Escribe la lista en el flujo de salida para enviarla al cliente.
             objectOutputStream.writeObject(lista);
@@ -263,6 +203,9 @@ public class HiloCliente extends Thread{
         auxLista.add(this.identificador);
         server.clientes.stream().forEach(cliente -> cliente.enviarMensaje(auxLista));
     
+        // Notificar a la ventana para agregar el usuario
+        server.ventana.addActiveUsers(this.identificador);
+
         // Agrega el nuevo cliente a la lista de clientes del servidor.
         server.clientes.add(this);
     }
@@ -303,3 +246,4 @@ public class HiloCliente extends Thread{
         // Notifica a los demás clientes sobre la desconexión.
         server.clientes.stream().forEach(h -> h.enviarMensaje(auxLista));
     }
+}
