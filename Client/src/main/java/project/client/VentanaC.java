@@ -9,9 +9,13 @@ import java.awt.*;
 import static java.awt.event.KeyEvent.VK_ENTER;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.JarURLConnection;
+import java.net.URL;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.*;
@@ -282,51 +286,58 @@ public class VentanaC extends javax.swing.JFrame {
 *Abre un cuadro de diálogo donde los usuarios pueden seleccionar emojis para insertarlos en el mensaje.
      */
     private void btnEmojiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEmojiActionPerformed
-        JDialog emojiDialog = new JDialog(this, "Seleccionar Emoji", true);
-        emojiDialog.setSize(500, 500);
-
-        JPanel emojiPanel = new JPanel(new GridLayout(0, 10, 5, 5));
-        emojiPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
         try {
-            // Cargar lista de archivos desde recursos
-            List<String> emojiFiles = getResourceFiles("/emojis/");
-            List<String> emojisNameFiles = getResourceFiles("/EmojisName/");
-            Map<String, String> emojiMap = buildEmojiMap(emojiFiles, emojisNameFiles);
+            JDialog emojiDialog = new JDialog(this, "Seleccionar Emoji", true);
+            emojiDialog.setSize(500, 500);
+            
+            JPanel emojiPanel = new JPanel(new GridLayout(0, 10, 5, 5));
+            emojiPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            
+            // Obtener los archivos de emoji desde el JAR
+            List<String> emojiFiles = getResourceFilesFromJar("/emojis/");
+            // Iterar sobre los archivos de emojis
             for (String emojiFile : emojiFiles) {
                 if (emojiFile.endsWith(".png")) {
-                    // Cargar imagen como recurso
-                    InputStream emojiStream = getClass().getResourceAsStream("/emojis/" + emojiFile);
+                    // Cargar la imagen del emoji desde el JAR
+                    InputStream emojiStream = getClass().getResourceAsStream(emojiFile);
                     if (emojiStream != null) {
-                        BufferedImage emojiImage = ImageIO.read(emojiStream);
-                        ImageIcon icon = new ImageIcon(emojiImage.getScaledInstance(32, 32, Image.SCALE_SMOOTH));
-
-                        // Crear botón con el emoji
-                        JButton emojiButton = new JButton(icon);
-                        emojiButton.setPreferredSize(new Dimension(40, 40));
-                        emojiButton.addActionListener(e -> {
-                            emojiDialog.dispose();
-                            String emojiName = emojiFile.replace(".png", "");
-                            txtMensaje.requestFocusInWindow();
-                            agregarEmojiEnJTextPane(txtMensaje, emojiName);
-                        });
-                        emojiPanel.add(emojiButton);
-
-                        // Agregar al mapa de nombres (si se necesita)
-                        emojiMap.put(emojiFile, emojiFile);
+                        try {
+                            BufferedImage emojiImage = ImageIO.read(emojiStream);
+                            ImageIcon icon = new ImageIcon(emojiImage.getScaledInstance(32, 32, Image.SCALE_SMOOTH));
+                            
+                            // Crear botón con el emoji
+                            JButton emojiButton = new JButton(icon);
+                            emojiButton.setPreferredSize(new Dimension(40, 40));
+                            emojiButton.addActionListener(e -> {
+                                emojiDialog.dispose();
+                                // Aquí, obtenemos el nombre del emoji sin la extensión
+                                String emojiName = emojiFile.substring(emojiFile.lastIndexOf('/') + 1);
+                                emojiName = emojiName.length() > 4 ? emojiName.substring(4, emojiName.length() - 4) : emojiName; // Eliminar los primeros 4 caracteres y la extensión .png
+                                txtMensaje.requestFocusInWindow();
+                                agregarEmojiEnJTextPane(txtMensaje, emojiName);
+                            });
+                            emojiPanel.add(emojiButton);
+                        } catch (IOException ex) {
+                            System.err.println("Error al cargar la imagen del emoji: " + emojiFile);
+                        }
+                    } else {
+                        System.err.println("No se pudo encontrar el emoji: " + emojiFile);
                     }
                 }
             }
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Error al cargar los emojis desde recursos: " + e.getMessage());
+            
+            emojiDialog.add(new JScrollPane(emojiPanel));
+            emojiDialog.setLocationRelativeTo(this);
+            emojiDialog.setVisible(true);
+        } catch (IOException ex) {
+            Logger.getLogger(VentanaC.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        emojiDialog.add(new JScrollPane(emojiPanel));
-        emojiDialog.setLocationRelativeTo(this);
-        emojiDialog.setVisible(true);
-
     }//GEN-LAST:event_btnEmojiActionPerformed
-
+    /***
+     * Método para enviar mensajes al presionar Enter
+     * @param evt 
+     */
     private void txtMensajeKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtMensajeKeyPressed
         if (evt.getKeyCode() == VK_ENTER) {
             if (evt.isShiftDown()) {
@@ -408,38 +419,44 @@ public class VentanaC extends javax.swing.JFrame {
     private void cmbContactosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbContactosActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_cmbContactosActionPerformed
+    /***
+     *  Método para auxiliar para obtener los archivos de emoji dentro del JAR 
+    */
+    private List<String> getResourceFilesFromJar(String path) throws IOException {
+        List<String> files = new ArrayList<>();
+        URL url = getClass().getResource(path);
 
-    public Map<String, String> buildEmojiMap(List<String> prefixedFiles, List<String> unprefixedFiles) {
-        Map<String, String> emojiMap = new HashMap<>();
-        for (String prefixedFile : prefixedFiles) {
-            String baseName = prefixedFile.substring(prefixedFile.indexOf('_') + 1, prefixedFile.length() - 4);
-            for (String unprefixedFile : unprefixedFiles) {
-                if (unprefixedFile.startsWith(baseName)) {
-                    emojiMap.put(prefixedFile, unprefixedFile);
-                    break;  // No es necesario continuar buscando después de la primera coincidencia
+        if (url != null && url.getProtocol().equals("jar")) {
+            // Obtener el archivo JAR
+            JarURLConnection connection = (JarURLConnection) url.openConnection();
+            JarFile jarFile = connection.getJarFile();
+
+            // Iterar sobre las entradas del JAR y agregar las que están en el directorio /emojis/
+            Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String entryName = entry.getName();
+
+                // Filtrar los archivos dentro del directorio /emojis/ y que terminen en .png
+                if (entryName.startsWith(path.substring(1)) && entryName.endsWith(".png")) {
+                    files.add("/" + entryName); // Agregar ruta completa
                 }
             }
+        } else {
+            throw new IOException("No se pudo acceder al directorio de recursos en el JAR");
         }
-        return emojiMap;
+
+        return files;
     }
 
-    /**
-     *
-     * @param path
-     * @return
-     * @throws IOException
+    /***
+     * 
+     * Método para reemplazar emojis escritos en el campo de texto
+     * Si el usuario escribe el nombre del nombre de algún emoji dentro de los
+     * caracteres ":[NombreDelEmoji]:", entonces este método se encarga de
+     * reemplazarlo
+     * @param e 
      */
-    public List<String> getResourceFiles(String path) throws IOException {
-        List<String> filenames = new ArrayList<>();
-        try (InputStream in = getClass().getResourceAsStream(path); BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
-            String resource;
-            while ((resource = br.readLine()) != null) {
-                filenames.add(resource);
-            }
-        }
-        return filenames;
-    }
-
     private void verificarYReemplazarEmoji(DocumentEvent e) {
         StyledDocument doc = (StyledDocument) e.getDocument();
         try {
@@ -485,7 +502,11 @@ public class VentanaC extends javax.swing.JFrame {
             ex.printStackTrace();
         }
     }
-
+    /***
+     * Método utilizado para agregar emojis en el campo de texto
+     * @param textPane
+     * @param emojiName 
+     */
     private void agregarEmojiEnJTextPane(JTextPane textPane, String emojiName) {
         StyledDocument doc = textPane.getStyledDocument();
         // Cargar emoji desde recursos
@@ -511,6 +532,12 @@ public class VentanaC extends javax.swing.JFrame {
         }
     }
 
+    /***
+     * Método para revisar si un campo de texto está vacío
+     * Utilizado como método de control ante posibles mensajes vacíos
+     * @param textPane
+     * @return 
+     */
     private boolean isJTextPaneEmpty(JTextPane textPane) {
         return textPane.getDocument().getLength() == 0;
 
