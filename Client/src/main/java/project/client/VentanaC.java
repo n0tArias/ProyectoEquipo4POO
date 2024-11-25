@@ -18,17 +18,16 @@ import javax.swing.text.*;
 import javax.swing.DefaultListModel;
 
 /**
- * Clase que maneja la interfaz gráfica del cliente.
- *
- * @author Erick Navarro
+ * Esta línea declara una clase pública llamada VentanaC que hereda de la clase javax.swing.JFrame, que es la clase base para las ventanas en aplicaciones Swing.
  */
 public class VentanaC extends javax.swing.JFrame {
 
-    private DefaultListModel<String> listModel; // Modelo para el JList
+    private DefaultListModel<String> listModel; // Esta variable almacena un modelo para el componente JList que muestra la lista de contactos.
     private JList<String> listContactos; // JList para mostrar contactos
 
     /**
-     * Constructor de la ventana.
+     *Este es el constructor de la clase VentanaC y se llama cuando se crea una instancia de la clase. Inicializa los componentes de la interfaz gráfica de usuario utilizando el método initComponents() (que generalmente es autogenerado por el editor de formularios de Swing).
+     *Configura el JList para mostrar contactos y define acciones para varios botones, como enviar mensajes y seleccionar emojis.
      */
     public VentanaC() {
         initComponents();
@@ -56,7 +55,7 @@ public class VentanaC extends javax.swing.JFrame {
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents() { //Este método maneja el evento de clic en el botón “Enviar”.Recupera el mensaje del panel de texto, lo envía al servidor a través del objeto Cliente y actualiza el historial del chat.
 
         cmbContactos = new javax.swing.JComboBox();
         btnEnviar = new javax.swing.JButton();
@@ -71,7 +70,8 @@ public class VentanaC extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowClosed(java.awt.event.WindowEvent evt) {
+            public void windowClosed(java.awt.event.WindowEvent evt) { //Este método maneja el evento de cierre de la ventana. Notifica al servidor sobre la desconexión del cliente.
+
                 formWindowClosed(evt);
             }
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -267,7 +267,10 @@ public class VentanaC extends javax.swing.JFrame {
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         cliente.confirmarDesconexion();
     }//GEN-LAST:event_formWindowClosing
-
+/*
+*Este método maneja el evento de clic en el botón “Emoji”.
+*Abre un cuadro de diálogo donde los usuarios pueden seleccionar emojis para insertarlos en el mensaje.
+*/
     private void btnEmojiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEmojiActionPerformed
         JDialog emojiDialog = new JDialog(this, "Seleccionar Emoji", true);
         emojiDialog.setSize(500, 500);
@@ -285,7 +288,8 @@ public class VentanaC extends javax.swing.JFrame {
                 ? emojiFolder.listFiles((dir, name) -> name.endsWith(".png")) : null;
 
         if (emojiFiles != null && emojisNameFiles != null) {
-            Map<String, String> emojiMap = buildEmojiMap(emojiFiles, emojisNameFiles);
+            Map<String, String> emojiMap = buildEmojiMap(emojiFiles, emojisNameFiles); //se usan para gestionar la funcionalidad de emojis en el chat.
+
             for (File emojiFile : emojiFiles) {
                 ImageIcon icon = new ImageIcon(new ImageIcon(emojiFile.getAbsolutePath()).getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH));
                 JButton emojiButton = new JButton(icon);
